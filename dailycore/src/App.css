@@ -8,6 +8,11 @@
   transition: border-color 0.3s;
   margin-bottom: 24px;
 
+  &:active {
+    background-color: white;
+    color: black;
+  }
+
   &:hover {
     border-color: var(--accent-border);
   }
