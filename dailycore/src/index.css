@@ -5,8 +5,13 @@
 body {
   margin: 0;
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  background: #f4f6f8;
+  background: #f0f4f8;
   color: #1f2933;
+  line-height: 1.5;
+}
+
+a {
+  color: #2563eb;
 }
 
 #root {

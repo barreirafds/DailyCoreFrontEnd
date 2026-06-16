@@ -6,7 +6,7 @@ export default function ProtectedRoute() {
 
   if (loading) {
     return (
-      <div className="app auth-page">
+      <div className="page-center">
         <p className="message loading">Checking session...</p>
       </div>
     );

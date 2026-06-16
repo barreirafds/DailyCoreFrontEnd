@@ -1,12 +1,9 @@
 import { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import { friendlyError } from '../api/errors';
 import { useAuth } from '../context/AuthContext';
-import {
-  friendlyAuthError,
-  validateEmail,
-  validateName,
-  validatePassword,
-} from '../utils/validation';
+import { validateEmail, validateName, validatePassword } from '../utils/validation';
+import ErrorAlert from '../components/ErrorAlert';
 
 export default function Register() {
   const { register, isAuthenticated, loading: authLoading } = useAuth();
@@ -14,20 +11,24 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+  }>({});
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   if (!authLoading && isAuthenticated) {
     return <Navigate to="/" replace />;
   }
 
-  async function handleSubmit(event) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const errors = {
-      name: validateName(name),
-      email: validateEmail(email),
-      password: validatePassword(password),
+      name: validateName(name) ?? undefined,
+      email: validateEmail(email) ?? undefined,
+      password: validatePassword(password) ?? undefined,
     };
     setFieldErrors(errors);
     if (errors.name || errors.email || errors.password) return;
@@ -35,30 +36,25 @@ export default function Register() {
     setLoading(true);
     setError(null);
     try {
-      const payload = {
+      await register({
         name: name.trim(),
         email: email.trim(),
         password,
-      };
-      if (phoneNumber.trim()) {
-        payload.phoneNumber = phoneNumber.trim();
-      }
-      await register(payload);
+        ...(phoneNumber.trim() ? { phoneNumber: phoneNumber.trim() } : {}),
+      });
     } catch (err) {
-      setError(friendlyAuthError(err));
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="app auth-page">
+    <div className="page-center">
       <div className="card auth-card">
         <h1>Create account</h1>
-        <p className="auth-subtitle">Join DailyCore</p>
-
-        {error && <p className="message error">{error}</p>}
-
+        <p className="subtitle">Join DailyCore</p>
+        {error && <ErrorAlert message={error} />}
         <form onSubmit={handleSubmit} noValidate>
           <label>
             Name
@@ -88,9 +84,7 @@ export default function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            {fieldErrors.password && (
-              <span className="field-error">{fieldErrors.password}</span>
-            )}
+            {fieldErrors.password && <span className="field-error">{fieldErrors.password}</span>}
           </label>
           <label>
             Phone <span className="optional">(optional)</span>
@@ -105,7 +99,6 @@ export default function Register() {
             {loading ? 'Creating account...' : 'Register'}
           </button>
         </form>
-
         <p className="auth-footer">
           Already have an account? <Link to="/login">Sign in</Link>
         </p>
