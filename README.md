@@ -1,7 +1,7 @@
 
 <div align="center">
 
-# 💻 DailyCore — Front-End
+# 💻 DailyCore - Front-End
 
 ### Personal Productivity & Routine Management
 
